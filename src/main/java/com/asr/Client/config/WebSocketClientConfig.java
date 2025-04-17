@@ -10,7 +10,7 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 @Configuration
 public class WebSocketClientConfig {
 
-  private static final String SERVER_URI = "ws://35.202.113.255:8766";
+  private static final String SERVER_URI = "ws://35.188.7.104:8766";
 
   @Bean
   public WebSocketConnectionManager webSocketConnectionManager() {

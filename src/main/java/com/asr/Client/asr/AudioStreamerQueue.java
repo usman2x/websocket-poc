@@ -1,14 +1,20 @@
 package com.asr.Client.asr;
+
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import javax.sound.sampled.*;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.TargetDataLine;
 import java.io.ByteArrayOutputStream;
-import java.nio.ByteBuffer;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.nio.ByteBuffer;
 
-public class AudioStreamer {
+public class AudioStreamerQueue {
 
   private static final int SAMPLE_RATE = 16000;
   private static final int ENCODER_STEP_LENGTH = 80; // Example value
@@ -19,12 +25,17 @@ public class AudioStreamer {
   final int CHANNELS = 1;
   final int BYTES_PER_SAMPLE = 2;
 
-  private final ExecutorService executor = Executors.newSingleThreadExecutor();
-
+  private final BlockingQueue<byte[]> audioQueue = new LinkedBlockingQueue<>();
+  private final ExecutorService executor = Executors.newFixedThreadPool(2);
   private WebSocketSession session;
 
-  public AudioStreamer(WebSocketSession session) {
+  public AudioStreamerQueue(WebSocketSession session) {
     this.session = session;
+  }
+
+  public void startStreaming() {
+    startAudioCapture();
+    startWebSocketSender();
   }
 
   private boolean isSilent(byte[] audioData, int threshold) {
@@ -45,7 +56,7 @@ public class AudioStreamer {
     return rms < threshold;
   }
 
-  public void startStreaming() {
+  private void startAudioCapture() {
     executor.submit(() -> {
       try {
         AudioFormat format = new AudioFormat(SAMPLE_RATE, 16, 1, true, false);
@@ -72,50 +83,34 @@ public class AudioStreamer {
             out.write(buffer, 0, bytesRead);
             if (out.size() >= CHUNK_SIZE * 2) {
               byte[] chunk = out.toByteArray();
-              if (!isSilent(chunk, 500)) { // Adjust threshold as needed
-                session.sendMessage(new BinaryMessage(ByteBuffer.wrap(chunk)));
+              if (!isSilent(chunk, 250)) {
+                audioQueue.put(chunk);
                 System.out.println("Sent non-silent chunk of size: " + chunk.length);
               } else {
                 System.out.println("Silent chunk detected, skipping...");
               }
-              out.reset();
-              Thread.sleep(10);
             }
           }
         }
       } catch (Exception e) {
-        System.err.println("Error in audio streaming: " + e.getMessage());
+        System.err.println("Error in audio capture: " + e.getMessage());
       }
     });
   }
 
-  public void startStreamingFromFile(String filePath) {
+  private void startWebSocketSender() {
     executor.submit(() -> {
       try {
-        byte[] audioData = WavFileReader.readWavFile(filePath);
-
-        for (int i = 0; i < audioData.length; i += CHUNK_SIZE) {
-          int length = Math.min(CHUNK_SIZE, audioData.length - i);
-          byte[] chunk = new byte[length];
-          System.arraycopy(audioData, i, chunk, 0, length);
-
-          if (chunk.length != CHUNK_SIZE) {
-            System.out.println("Chunk size mismatch: " + chunk.length);
-            continue;
+        while (true) {
+          byte[] chunk = audioQueue.take(); // Retrieve a chunk from the queue
+          if (chunk.length > 0) {
+            session.sendMessage(new BinaryMessage(ByteBuffer.wrap(chunk)));
+            System.out.println("Sent audio chunk of size: " + chunk.length);
           }
-
-          session.sendMessage(new BinaryMessage(ByteBuffer.wrap(chunk)));
-          System.out.println("Sent audio chunk of size: " + chunk.length);
-
-          // Simulate real-time streaming with a 10ms delay
-          Thread.sleep(10); // Adjust based on chunk size
+          Thread.sleep(CHUNK_MS); // Match the chunk duration
         }
-
-        // Send end-of-stream signal
-        session.sendMessage(new BinaryMessage(ByteBuffer.wrap(new byte[0])));
-        System.out.println("Sent end-of-stream signal.");
       } catch (Exception e) {
-        System.err.println("Error in audio streaming: " + e.getMessage());
+        System.err.println("Error in WebSocket sender: " + e.getMessage());
       }
     });
   }

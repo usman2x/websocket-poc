@@ -16,9 +16,9 @@ public class MyBinaryWebSocketHandler extends BinaryWebSocketHandler {
 
   @Override
   protected void handleTextMessage(WebSocketSession session, TextMessage message) {
-    System.out.println("Raw server response: " + message);
+//    System.out.println("Raw server response: " + message);
     String payload = message.getPayload();
-    System.out.println("Received raw message from server: " + payload);
+//    System.out.println("Received raw message from server: " + payload);
     try {
       ObjectMapper objectMapper = new ObjectMapper();
       JsonNode jsonNode = objectMapper.readTree(payload);
@@ -34,8 +34,10 @@ public class MyBinaryWebSocketHandler extends BinaryWebSocketHandler {
     System.out.println("WebSocket connection established with server: " + session.getId());
     session.setBinaryMessageSizeLimit(2048*2024);
     session.setTextMessageSizeLimit(2048*2024);
-    AudioStreamer audioStreamer = new AudioStreamer(session);
-    audioStreamer.startStreaming();
+    AudioStreamerQueue streamerQueue = new AudioStreamerQueue(session);
+    streamerQueue.startStreaming();
+//    AudioStreamer audioStreamer = new AudioStreamer(session);
+//    audioStreamer.startStreaming();
 //    audioStreamer.startStreamingFromFile("/Users/user/upwork/MesutToruk/Client/src/main/resources/voice.wav");
   }
 
