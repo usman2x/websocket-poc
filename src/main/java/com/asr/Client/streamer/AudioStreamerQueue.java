@@ -1,4 +1,4 @@
-package com.asr.Client.asr;
+package com.asr.Client.streamer;
 
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.WebSocketSession;

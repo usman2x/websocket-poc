@@ -1,4 +1,4 @@
-package com.asr.Client.clean;
+package com.asr.Client.middleware;
 
 
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @RequiredArgsConstructor
 public class ClientConnectionHandler extends BinaryWebSocketHandler {
-    private final WebSocketConnectionManager connectionManager;
+    private final ASRWebSocketConnectionManager connectionManager;
     private final Map<String, SessionMetrics> sessionMetricsMap = new ConcurrentHashMap<>();
 
 
@@ -26,7 +26,7 @@ public class ClientConnectionHandler extends BinaryWebSocketHandler {
 
         var asrSocket = connectionManager.createNewAsrConnection();
         asrSocket.setPingSenderName(session.getId());
-        connectionManager.addConnection(session.getId(), new DualConnection(session, asrSocket));
+        connectionManager.addConnection(session.getId(), new ConnectionBridge(session, asrSocket));
 
         sessionMetricsMap.put(session.getId(), new SessionMetrics());
 

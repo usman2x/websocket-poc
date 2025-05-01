@@ -1,4 +1,4 @@
-package com.asr.Client.asr;
+package com.asr.Client.streamer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,7 +7,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
-public class MyBinaryWebSocketHandler extends BinaryWebSocketHandler {
+public class ASRBinaryWebSocketHandler extends BinaryWebSocketHandler {
 
   @Override
   protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) throws Exception {

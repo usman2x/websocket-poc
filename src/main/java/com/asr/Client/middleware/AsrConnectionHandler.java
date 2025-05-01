@@ -1,4 +1,4 @@
-package com.asr.Client.clean;
+package com.asr.Client.middleware;
 
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
@@ -10,7 +10,7 @@ import org.springframework.web.socket.TextMessage;
 @Component
 public class AsrConnectionHandler extends WebSocketAdapter {
     @Autowired @Lazy
-    private WebSocketConnectionManager connectionManager;
+    private ASRWebSocketConnectionManager connectionManager;
 
     @Override
     public void onTextMessage(WebSocket websocket, String message) throws Exception {

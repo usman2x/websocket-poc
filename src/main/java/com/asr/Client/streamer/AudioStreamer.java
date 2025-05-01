@@ -1,4 +1,4 @@
-package com.asr.Client.asr;
+package com.asr.Client.streamer;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -83,37 +83,6 @@ public class AudioStreamer {
             }
           }
         }
-      } catch (Exception e) {
-        System.err.println("Error in audio streaming: " + e.getMessage());
-      }
-    });
-  }
-
-  public void startStreamingFromFile(String filePath) {
-    executor.submit(() -> {
-      try {
-        byte[] audioData = WavFileReader.readWavFile(filePath);
-
-        for (int i = 0; i < audioData.length; i += CHUNK_SIZE) {
-          int length = Math.min(CHUNK_SIZE, audioData.length - i);
-          byte[] chunk = new byte[length];
-          System.arraycopy(audioData, i, chunk, 0, length);
-
-          if (chunk.length != CHUNK_SIZE) {
-            System.out.println("Chunk size mismatch: " + chunk.length);
-            continue;
-          }
-
-          session.sendMessage(new BinaryMessage(ByteBuffer.wrap(chunk)));
-          System.out.println("Sent audio chunk of size: " + chunk.length);
-
-          // Simulate real-time streaming with a 10ms delay
-          Thread.sleep(10); // Adjust based on chunk size
-        }
-
-        // Send end-of-stream signal
-        session.sendMessage(new BinaryMessage(ByteBuffer.wrap(new byte[0])));
-        System.out.println("Sent end-of-stream signal.");
       } catch (Exception e) {
         System.err.println("Error in audio streaming: " + e.getMessage());
       }

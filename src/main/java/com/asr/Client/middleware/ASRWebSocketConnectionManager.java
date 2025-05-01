@@ -1,4 +1,4 @@
-package com.asr.Client.clean;
+package com.asr.Client.middleware;
 
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketFactory;
@@ -9,20 +9,20 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-public class WebSocketConnectionManager {
+public class ASRWebSocketConnectionManager {
 
     @Value("${asr.websocket.url}")
     private String asrServer;
 
-    private final Map<String, DualConnection> connections;
+    private final Map<String, ConnectionBridge> connections;
     private final AsrConnectionHandler asrHandler ;
 
-    WebSocketConnectionManager(AsrConnectionHandler asrHandler) {
+    ASRWebSocketConnectionManager(AsrConnectionHandler asrHandler) {
         connections = new ConcurrentHashMap<>();
         this.asrHandler = asrHandler;
     }
 
-    public void addConnection(String key, DualConnection connection) {
+    public void addConnection(String key, ConnectionBridge connection) {
         connections.put(key, connection);
     }
 
@@ -30,7 +30,7 @@ public class WebSocketConnectionManager {
         connections.remove(key);
     }
 
-    public DualConnection getConnection(String key) {
+    public ConnectionBridge getConnection(String key) {
         return connections.get(key);
     }
 

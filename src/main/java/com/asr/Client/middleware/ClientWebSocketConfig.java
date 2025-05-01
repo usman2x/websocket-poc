@@ -1,4 +1,4 @@
-package com.asr.Client.clean;
+package com.asr.Client.middleware;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +9,7 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @Configuration
 @EnableWebSocket
 @RequiredArgsConstructor
-public class WebSocketConfig implements WebSocketConfigurer {
+public class ClientWebSocketConfig implements WebSocketConfigurer {
     private final ClientConnectionHandler connectionHandler;
 
     @Override
