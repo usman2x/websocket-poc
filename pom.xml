@@ -45,6 +45,16 @@
 			<artifactId>Java-WebSocket</artifactId>
 			<version>1.5.3</version>
 		</dependency>
+		<dependency>
+			<groupId>com.neovisionaries</groupId>
+			<artifactId>nv-websocket-client</artifactId>
+			<version>2.14</version>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -52,6 +62,14 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

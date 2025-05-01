@@ -16,9 +16,7 @@ public class MyBinaryWebSocketHandler extends BinaryWebSocketHandler {
 
   @Override
   protected void handleTextMessage(WebSocketSession session, TextMessage message) {
-//    System.out.println("Raw server response: " + message);
     String payload = message.getPayload();
-//    System.out.println("Received raw message from server: " + payload);
     try {
       ObjectMapper objectMapper = new ObjectMapper();
       JsonNode jsonNode = objectMapper.readTree(payload);
